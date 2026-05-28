@@ -1,0 +1,47 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*.sqlite3
+*.log
+.venv/
+env/
+
+# Django
+
+media/
+staticfiles/
+
+# Node
+
+node_modules/
+dist/
+build/
+
+# Environment
+
+.env
+.env.*
+
+# VSCode
+
+.vscode/
+
+# OS
+
+.DS_Store
+Thumbs.db
+
+# Coverage
+
+coverage/
+htmlcov/
+
+# Cache
+
+.cache/
+.pytest_cache/
+
+# Docker
+
+*.pid

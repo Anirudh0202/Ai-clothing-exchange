@@ -1,0 +1,58 @@
+import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import itemService from '../services/itemService'
+import Loader from '../components/ui/Loader'
+import EmptyState from '../components/ui/EmptyState'
+import { MarketItem } from '../features/marketplace/types'
+
+export default function ItemDetails() {
+  const { id } = useParams()
+  const [item, setItem] = useState<MarketItem | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!id) return
+    itemService
+      .fetchItemDetail(id)
+      .then((data) => setItem(data))
+      .catch(() => setError('Unable to load item details.'))
+      .finally(() => setLoading(false))
+  }, [id])
+
+  if (loading) return <Loader />
+  if (error) return <EmptyState title="Not found" description={error} />
+  if (!item) return <EmptyState title="No item" description="This item no longer exists." />
+
+  return (
+    <div className="grid gap-8 lg:grid-cols-[0.65fr_0.35fr]">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+        <img src={item.image || 'https://images.unsplash.com/photo-1525026198546-ebb0aa5d6cf6?auto=format&fit=crop&w=900&q=60'} alt={item.title} className="h-[360px] w-full rounded-3xl object-cover" />
+        <div className="mt-6 space-y-4">
+          <h1 className="text-3xl font-semibold text-slate-900">{item.title}</h1>
+          <p className="text-sm text-slate-500">Owned by {item.owner?.username || 'Community'}</p>
+          <p className="text-base leading-7 text-slate-600">{item.description}</p>
+        </div>
+      </section>
+      <aside className="space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
+        <div>
+          <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Details</p>
+          <p className="mt-4 text-4xl font-semibold text-slate-900">${item.price.toFixed(2)}</p>
+        </div>
+        <div className="space-y-4 rounded-3xl bg-slate-50 p-4">
+          <div className="flex items-center justify-between text-sm text-slate-600">
+            <span>Condition</span>
+            <span className="font-semibold text-slate-900">{item.condition || 'Good'}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm text-slate-600">
+            <span>Category</span>
+            <span className="font-semibold text-slate-900">Fashion</span>
+          </div>
+        </div>
+        <button className="w-full rounded-2xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-700">
+          Request exchange
+        </button>
+      </aside>
+    </div>
+  )
+}
