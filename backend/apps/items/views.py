@@ -52,6 +52,7 @@ class ClothingItemViewSet(viewsets.ModelViewSet):
         condition = params.get('condition')
         size = params.get('size')
         brand = params.get('brand')
+        owner = params.get('owner')
         tags = params.getlist('tag')
 
         if search:
@@ -71,6 +72,8 @@ class ClothingItemViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(size=size)
         if brand:
             queryset = queryset.filter(brand__icontains=brand)
+        if owner:
+            queryset = queryset.filter(owner_id=owner)
         if tags:
             queryset = queryset.filter(tags__name__in=tags).distinct()
         return queryset

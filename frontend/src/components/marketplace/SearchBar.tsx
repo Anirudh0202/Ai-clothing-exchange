@@ -1,10 +1,13 @@
-import { useState } from 'react'
+type SearchBarProps = {
+  value: string
+  onChange: (value: string) => void
+  onSearch?: (value: string) => void
+}
 
-export default function SearchBar({ onSearch }: { onSearch: (q: string) => void }) {
-  const [value, setValue] = useState('')
-  const submit = (e?: React.FormEvent) => {
-    e?.preventDefault()
-    onSearch(value)
+export default function SearchBar({ value, onChange, onSearch }: SearchBarProps) {
+  const submit = (event?: React.FormEvent) => {
+    event?.preventDefault()
+    onSearch?.(value)
   }
 
   return (
@@ -14,8 +17,9 @@ export default function SearchBar({ onSearch }: { onSearch: (q: string) => void 
           type="search"
           placeholder="Search items, brand or location"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(event) => onChange(event.target.value)}
           className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none"
+          aria-label="Search items"
         />
         <button type="submit" className="rounded-2xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white">
           Search

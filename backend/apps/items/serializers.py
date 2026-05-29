@@ -37,6 +37,7 @@ class ClothingItemListSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'title',
+            'description',
             'brand',
             'size',
             'condition',
@@ -108,6 +109,7 @@ class ClothingItemCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClothingItem
         fields = (
+            'id',
             'title',
             'description',
             'brand',
@@ -119,6 +121,7 @@ class ClothingItemCreateUpdateSerializer(serializers.ModelSerializer):
             'location',
             'metadata',
         )
+        read_only_fields = ('id',)
 
     def validate_status(self, value):
         if value not in dict(ClothingItem.STATUS_CHOICES):

@@ -1,4 +1,5 @@
 import api from '../api/axios'
+import type { AxiosProgressEvent } from 'axios'
 import { MarketItem } from '../features/marketplace/types'
 
 type PaginatedResponse<T> = {
@@ -12,7 +13,21 @@ const ITEM_BASE = '/items/'
 
 const itemApi = {
   list: async (params = {}) => {
-    const { data } = await api.get<PaginatedResponse<MarketItem>>(ITEM_BASE, { params })
+    const query = new URLSearchParams()
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '') return
+      if (Array.isArray(value)) {
+        value.forEach((entry) => {
+          if (entry !== undefined && entry !== null && entry !== '') {
+            query.append(key, String(entry))
+          }
+        })
+        return
+      }
+      query.append(key, String(value))
+    })
+
+    const { data } = await api.get<PaginatedResponse<MarketItem>>(ITEM_BASE, { params: query })
     return data
   },
   retrieve: async (id: string | number) => {
@@ -36,7 +51,7 @@ const itemApi = {
     const { data } = await api.post(`${ITEM_BASE}${id}/archive/`)
     return data
   },
-  images: async (form: FormData, onUploadProgress?: (progressEvent: ProgressEvent) => void) => {
+  images: async (form: FormData, onUploadProgress?: (progressEvent: AxiosProgressEvent) => void) => {
     const { data } = await api.post('/items/images/', form, { headers: { 'Content-Type': 'multipart/form-data' }, onUploadProgress })
     return data
   },
@@ -45,12 +60,12 @@ const itemApi = {
     return data
   },
   categories: async () => {
-    const { data } = await api.get('/items/categories/')
-    return data
+    const { data } = await api.get<PaginatedResponse<{ id: number; name: string; slug: string }>>('/items/categories/')
+    return data.results ?? data
   },
   tags: async () => {
-    const { data } = await api.get('/items/tags/')
-    return data
+    const { data } = await api.get<PaginatedResponse<{ id: number; name: string }>>('/items/tags/')
+    return data.results ?? data
   },
 }
 

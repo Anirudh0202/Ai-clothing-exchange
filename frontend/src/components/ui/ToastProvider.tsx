@@ -25,14 +25,14 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       {toast ? (
-        <div className="fixed bottom-5 right-5 z-50 max-w-sm rounded-3xl border border-slate-200 bg-white px-5 py-4 shadow-soft transition-opacity duration-300">
+        <div className="fixed bottom-5 right-5 z-50 max-w-sm rounded-[1.75rem] border border-white/10 bg-slate-950/95 p-4 shadow-[0_18px_80px_rgba(15,23,42,0.35)] backdrop-blur-xl">
           <div className="flex items-start gap-3">
-            <span className={`flex h-9 w-9 items-center justify-center rounded-full ${toast.variant === 'error' ? 'bg-red-100 text-red-700' : toast.variant === 'success' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>
+            <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ${toast.variant === 'error' ? 'bg-red-500/10 text-red-300' : toast.variant === 'success' ? 'bg-emerald-500/10 text-emerald-300' : 'bg-slate-700/10 text-slate-200'}`}>
               {toast.variant === 'success' ? '✓' : toast.variant === 'error' ? '!' : 'i'}
             </span>
             <div>
-              <p className="text-sm font-semibold text-slate-900">{toast.variant?.toUpperCase() || 'INFO'}</p>
-              <p className="mt-1 text-sm text-slate-600">{toast.message}</p>
+              <p className="text-sm font-semibold text-slate-100">{toast.variant?.toUpperCase() || 'INFO'}</p>
+              <p className="mt-1 text-sm leading-6 text-slate-300">{toast.message}</p>
             </div>
           </div>
         </div>

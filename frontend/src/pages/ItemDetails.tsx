@@ -24,10 +24,12 @@ export default function ItemDetails() {
   if (error) return <EmptyState title="Not found" description={error} />
   if (!item) return <EmptyState title="No item" description="This item no longer exists." />
 
+  const image = item.images?.[0]?.image || item.primary_image?.image || 'https://images.unsplash.com/photo-1525026198546-ebb0aa5d6cf6?auto=format&fit=crop&w=900&q=60'
+
   return (
     <div className="grid gap-8 lg:grid-cols-[0.65fr_0.35fr]">
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
-        <img src={item.image || 'https://images.unsplash.com/photo-1525026198546-ebb0aa5d6cf6?auto=format&fit=crop&w=900&q=60'} alt={item.title} className="h-[360px] w-full rounded-3xl object-cover" />
+        <img src={image} alt={item.title} className="h-[360px] w-full rounded-3xl object-cover" />
         <div className="mt-6 space-y-4">
           <h1 className="text-3xl font-semibold text-slate-900">{item.title}</h1>
           <p className="text-sm text-slate-500">Owned by {item.owner?.username || 'Community'}</p>
@@ -37,7 +39,7 @@ export default function ItemDetails() {
       <aside className="space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
         <div>
           <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Details</p>
-          <p className="mt-4 text-4xl font-semibold text-slate-900">${item.price.toFixed(2)}</p>
+          <p className="mt-4 text-4xl font-semibold text-slate-900">{item.status || 'available'}</p>
         </div>
         <div className="space-y-4 rounded-3xl bg-slate-50 p-4">
           <div className="flex items-center justify-between text-sm text-slate-600">
@@ -46,7 +48,11 @@ export default function ItemDetails() {
           </div>
           <div className="flex items-center justify-between text-sm text-slate-600">
             <span>Category</span>
-            <span className="font-semibold text-slate-900">Fashion</span>
+            <span className="font-semibold text-slate-900">{item.category?.name || 'Fashion'}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm text-slate-600">
+            <span>Size</span>
+            <span className="font-semibold text-slate-900">{item.size || 'Not listed'}</span>
           </div>
         </div>
         <button className="w-full rounded-2xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-brand-700">

@@ -16,9 +16,17 @@ export default function UserItemsPage() {
   if (!user) return <Navigate to="/login" />
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h1 className="mb-4 text-xl font-bold">My Items</h1>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    <div className="space-y-8">
+      <section className="rounded-[2rem] border border-slate-800/40 bg-slate-950/90 p-8 shadow-soft">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Your closet</p>
+            <h1 className="mt-2 text-3xl font-semibold text-white">Listings you manage</h1>
+          </div>
+          <p className="text-sm text-slate-400">Review and update your marketplace items from one elegant view.</p>
+        </div>
+      </section>
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {items.map((it) => (
           <ItemCard key={it.id} item={it} />
         ))}

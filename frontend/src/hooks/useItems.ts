@@ -9,6 +9,14 @@ export function useItems(initialQuery = {}) {
   const [pageInfo, setPageInfo] = useState({ count: 0, next: null as string | null, previous: null as string | null })
   const [query, setQuery] = useState<any>(initialQuery)
 
+  useEffect(() => {
+    const current = JSON.stringify(query)
+    const next = JSON.stringify(initialQuery)
+    if (current !== next) {
+      setQuery(initialQuery)
+    }
+  }, [initialQuery, query])
+
   const fetch = useCallback(async (q = query) => {
     setLoading(true)
     setError(null)

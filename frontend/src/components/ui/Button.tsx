@@ -6,16 +6,19 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles = {
-  primary: 'bg-brand-600 text-white shadow-lg shadow-brand-200/40 hover:bg-brand-700',
-  secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200',
-  ghost: 'bg-transparent text-slate-700 hover:bg-slate-100',
+  primary:
+    'bg-gradient-to-r from-brand-500 to-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:brightness-110',
+  secondary:
+    'bg-slate-900 text-white ring-1 ring-slate-700 hover:bg-slate-800 hover:ring-indigo-500',
+  ghost:
+    'bg-white/5 text-slate-100 hover:bg-white/10 border border-white/10',
 }
 
 export default function Button({ className, variant = 'primary', ...props }: ButtonProps) {
   return (
     <button
       className={classNames(
-        'inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold transition duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-60',
+        'inline-flex items-center justify-center rounded-3xl px-5 py-3 text-sm font-semibold transition duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-60',
         variantStyles[variant],
         className,
       )}
