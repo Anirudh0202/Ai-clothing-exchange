@@ -9,4 +9,5 @@ export const AUTH_ENDPOINTS = {
 export const ITEM_ENDPOINTS = {
   marketplace: '/items/',
   details: (id: string) => `/items/${id}/`,
+  recommendations: (id: string) => `/items/${id}/recommendations/`,
 }

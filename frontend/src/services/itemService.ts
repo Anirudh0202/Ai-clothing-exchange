@@ -18,6 +18,10 @@ const itemService = {
     const { data } = await api.get<MarketItem>(ITEM_ENDPOINTS.details(id))
     return data
   },
+  fetchItemRecommendations: async (id: string | number) => {
+    const { data } = await api.get<MarketItem[]>(ITEM_ENDPOINTS.recommendations(String(id)))
+    return data
+  },
 }
 
 export default itemService

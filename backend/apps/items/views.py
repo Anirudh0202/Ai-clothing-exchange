@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 
+from apps.recommendations.services import get_recommended_items_for_item
 from .models import Category, ClothingItem, ItemImage, Tag
 from .permissions import IsOwnerOrReadOnly
 from .serializers import (
@@ -89,6 +90,13 @@ class ClothingItemViewSet(viewsets.ModelViewSet):
         item.status = ClothingItem.STATUS_ARCHIVED
         item.save(update_fields=['status'])
         return Response({'detail': 'Item archived.'}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['get'], permission_classes=[permissions.AllowAny])
+    def recommendations(self, request, pk=None):
+        item = self.get_object()
+        recommended_items = get_recommended_items_for_item(item, limit=5)
+        serializer = ClothingItemListSerializer(recommended_items, many=True, context=self.get_serializer_context())
+        return Response(serializer.data)
 
 
 class ItemImageViewSet(viewsets.ModelViewSet):
