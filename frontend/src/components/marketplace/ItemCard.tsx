@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { MarketItem } from '../../features/marketplace/types'
+import { getImageUrl } from '../../utils/image'
 
 export default function ItemCard({ item }: { item: MarketItem }) {
-  const image = item.primary_image?.image || item.images?.[0]?.image || 'https://images.unsplash.com/photo-1525026198546-ebb0aa5d6cf6?auto=format&fit=crop&w=800&q=60'
+  const image = getImageUrl(item.primary_image?.image || item.images?.[0]?.image)
 
   return (
     <motion.article

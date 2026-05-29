@@ -4,6 +4,7 @@ import itemService from '../services/itemService'
 import Loader from '../components/ui/Loader'
 import EmptyState from '../components/ui/EmptyState'
 import { MarketItem } from '../features/marketplace/types'
+import { getImageUrl } from '../utils/image'
 
 export default function ItemDetails() {
   const { id } = useParams()
@@ -24,7 +25,7 @@ export default function ItemDetails() {
   if (error) return <EmptyState title="Not found" description={error} />
   if (!item) return <EmptyState title="No item" description="This item no longer exists." />
 
-  const image = item.images?.[0]?.image || item.primary_image?.image || 'https://images.unsplash.com/photo-1525026198546-ebb0aa5d6cf6?auto=format&fit=crop&w=900&q=60'
+  const image = getImageUrl(item.images?.[0]?.image || item.primary_image?.image)
 
   return (
     <div className="grid gap-8 lg:grid-cols-[0.65fr_0.35fr]">

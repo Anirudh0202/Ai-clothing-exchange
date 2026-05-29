@@ -6,6 +6,7 @@ import itemService from '../services/itemService'
 import { Button } from '../components/ui'
 import EmptyState from '../components/ui/EmptyState'
 import { MarketItem } from '../features/marketplace/types'
+import { getImageUrl } from '../utils/image'
 
 export default function Home() {
   const [items, setItems] = useState<MarketItem[]>([])
@@ -72,7 +73,7 @@ export default function Home() {
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-slate-800">
                   <img
-                    src={item.primary_image?.image || 'https://images.unsplash.com/photo-1525026198546-ebb0aa5d6cf6?auto=format&fit=crop&w=800&q=60'}
+                    src={getImageUrl(item.primary_image?.image)}
                     alt={item.title}
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                   />

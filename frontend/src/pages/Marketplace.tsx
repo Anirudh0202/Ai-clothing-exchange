@@ -5,6 +5,7 @@ import itemService from '../services/itemService'
 import Loader from '../components/ui/Loader'
 import EmptyState from '../components/ui/EmptyState'
 import { MarketItem } from '../features/marketplace/types'
+import { getImageUrl } from '../utils/image'
 
 export default function Marketplace() {
   const [items, setItems] = useState<MarketItem[]>([])
@@ -49,7 +50,7 @@ export default function Marketplace() {
             <Link to={`/marketplace/${item.id}`} className="block">
               <div className="relative aspect-[4/3] overflow-hidden bg-slate-900">
                 <img
-                  src={item.primary_image?.image || item.images?.[0]?.image || 'https://images.unsplash.com/photo-1525026198546-ebb0aa5d6cf6?auto=format&fit=crop&w=800&q=60'}
+                  src={getImageUrl(item.primary_image?.image || item.images?.[0]?.image)}
                   alt={item.title}
                   className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />
