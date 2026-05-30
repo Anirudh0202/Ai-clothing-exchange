@@ -1,8 +1,3 @@
-import random
-import uuid
-import urllib.request
-
-from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
@@ -63,8 +58,6 @@ class Command(BaseCommand):
             'https://images.pexels.com/photos/2244951/pexels-photo-2244951.jpeg?cs=srgb&dl=pexels-harsh-raj-gond-218020-2244951.jpg&fm=jpg',
             'https://images.pexels.com/photos/5697197/pexels-photo-5697197.jpeg?cs=srgb&dl=pexels-andiravsanjani-5697197.jpg&fm=jpg',
         ]
-
-        fallback_image_url = 'https://images.pexels.com/photos/5697197/pexels-photo-5697197.jpeg?cs=srgb&dl=pexels-andiravsanjani-5697197.jpg&fm=jpg'
 
         items = [
             {
@@ -267,29 +260,20 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(self.style.WARNING(f'Item already exists: {item.title}'))
 
+            image_url = image_sources[index % len(image_sources)]
+            current_primary = item.images.filter(is_primary=True, source_url=image_url).first()
+            if current_primary and item.images.count() == 1:
+                self.stdout.write(self.style.WARNING(f'Image URL already attached to item: {item.title}'))
+                continue
+
             if item.images.exists():
                 for existing_image in list(item.images.all()):
-                    existing_image.image.delete(save=False)
+                    if existing_image.image:
+                        existing_image.image.delete(save=False)
                     existing_image.delete()
                 self.stdout.write(self.style.WARNING(f'Replaced existing images for item: {item.title}'))
 
-            image_url = image_sources[index % len(image_sources)]
-            try:
-                request = urllib.request.Request(image_url, headers={'User-Agent': 'Mozilla/5.0'})
-                image_data = urllib.request.urlopen(request, timeout=15).read()
-            except Exception as exc:
-                self.stdout.write(self.style.WARNING(f'Failed to download image for {item.title}: {exc}. Trying fallback image.'))
-                try:
-                    fallback_request = urllib.request.Request(fallback_image_url, headers={'User-Agent': 'Mozilla/5.0'})
-                    image_data = urllib.request.urlopen(fallback_request, timeout=15).read()
-                except Exception as fallback_exc:
-                    self.stdout.write(self.style.ERROR(f'Fallback image download failed for {item.title}: {fallback_exc}.'))
-                    raise
-
-            image_name = f'{uuid.uuid4().hex}.jpg'
-            image_file = ContentFile(image_data, name=image_name)
-            image = ItemImage(item=item, is_primary=True)
-            image.image.save(image_name, image_file, save=True)
+            ItemImage.objects.create(item=item, is_primary=True, source_url=image_url)
             self.stdout.write(self.style.SUCCESS(f'Attached image to item: {item.title}'))
 
         self.stdout.write(self.style.SUCCESS('Finished seeding clothing marketplace records.'))

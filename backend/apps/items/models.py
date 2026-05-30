@@ -122,7 +122,8 @@ class ItemImage(models.Model):
         on_delete=models.CASCADE,
         related_name='images',
     )
-    image = models.ImageField(upload_to=item_image_upload_path, validators=[validate_image_size])
+    image = models.ImageField(upload_to=item_image_upload_path, validators=[validate_image_size], blank=True, null=True)
+    source_url = models.URLField(blank=True)
     is_primary = models.BooleanField(default=False)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 

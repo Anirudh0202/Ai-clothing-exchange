@@ -23,8 +23,14 @@ class ItemImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ItemImage
-        fields = ('id', 'item', 'image', 'is_primary', 'uploaded_at')
+        fields = ('id', 'item', 'image', 'source_url', 'is_primary', 'uploaded_at')
         read_only_fields = ('id', 'uploaded_at')
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.source_url:
+            data['image'] = instance.source_url
+        return data
 
 
 class ClothingItemListSerializer(serializers.ModelSerializer):
