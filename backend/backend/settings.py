@@ -2,6 +2,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
+from urllib.parse import urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -90,6 +91,10 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 USE_SQLITE = get_bool_env('DJANGO_USE_SQLITE', False)
 
+# Support DATABASE_URL for platforms like Render/Neon. If DATABASE_URL is present,
+# parse it and use it; otherwise fall back to the previous POSTGRES_* envvar logic.
+DATABASE_URL = os.getenv('DATABASE_URL')
+
 if USE_SQLITE:
     DATABASES = {
         'default': {
@@ -98,16 +103,51 @@ if USE_SQLITE:
         }
     }
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('POSTGRES_DB', 'clothing_db') if DEBUG else get_required_env('POSTGRES_DB'),
-            'USER': os.getenv('POSTGRES_USER', 'clothing_user') if DEBUG else get_required_env('POSTGRES_USER'),
-            'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'clothing_password') if DEBUG else get_required_env('POSTGRES_PASSWORD'),
-            'HOST': os.getenv('POSTGRES_HOST', 'localhost') if DEBUG else get_required_env('POSTGRES_HOST'),
-            'PORT': os.getenv('POSTGRES_PORT', '5432') if DEBUG else get_required_env('POSTGRES_PORT'),
+    if DATABASE_URL:
+        parsed = urlparse(DATABASE_URL)
+        scheme = parsed.scheme
+        if scheme.startswith('sqlite'):
+            # sqlite:///relative or sqlite:////absolute
+            db_path = parsed.path.lstrip('/')
+            if not db_path:
+                db_name = BASE_DIR / 'db.sqlite3'
+            else:
+                db_name = BASE_DIR / db_path
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'NAME': str(db_name),
+                }
+            }
+        else:
+            # default to PostgreSQL-compatible engines
+            engine = 'django.db.backends.postgresql'
+            db_name = parsed.path.lstrip('/') if parsed.path else ''
+            db_user = parsed.username or ''
+            db_password = parsed.password or ''
+            db_host = parsed.hostname or ''
+            db_port = str(parsed.port) if parsed.port else ''
+            DATABASES = {
+                'default': {
+                    'ENGINE': engine,
+                    'NAME': db_name,
+                    'USER': db_user,
+                    'PASSWORD': db_password,
+                    'HOST': db_host,
+                    'PORT': db_port,
+                }
+            }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': os.getenv('POSTGRES_DB', 'clothing_db') if DEBUG else get_required_env('POSTGRES_DB'),
+                'USER': os.getenv('POSTGRES_USER', 'clothing_user') if DEBUG else get_required_env('POSTGRES_USER'),
+                'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'clothing_password') if DEBUG else get_required_env('POSTGRES_PASSWORD'),
+                'HOST': os.getenv('POSTGRES_HOST', 'localhost') if DEBUG else get_required_env('POSTGRES_HOST'),
+                'PORT': os.getenv('POSTGRES_PORT', '5432') if DEBUG else get_required_env('POSTGRES_PORT'),
+            }
         }
-    }
 
 AUTH_USER_MODEL = 'accounts.User'
 
