@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,7 +29,14 @@ def get_list_env(key, default=None):
     return [value.strip() for value in raw.split(',') if value.strip()]
 
 
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'unsafe-default-secret')
+def get_required_env(key):
+    value = os.getenv(key)
+    if not value:
+        raise ImproperlyConfigured(f'{key} environment variable is required.')
+    return value
+
+
+SECRET_KEY = get_required_env('DJANGO_SECRET_KEY')
 DEBUG = get_bool_env('DJANGO_DEBUG', False)
 ALLOWED_HOSTS = get_list_env('DJANGO_ALLOWED_HOSTS', ['localhost', '127.0.0.1'])
 
@@ -51,6 +59,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -92,11 +101,11 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('POSTGRES_DB', 'clothing_db'),
-            'USER': os.getenv('POSTGRES_USER', 'clothing_user'),
-            'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'clothing_password'),
-            'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
-            'PORT': os.getenv('POSTGRES_PORT', '5432'),
+            'NAME': os.getenv('POSTGRES_DB', 'clothing_db') if DEBUG else get_required_env('POSTGRES_DB'),
+            'USER': os.getenv('POSTGRES_USER', 'clothing_user') if DEBUG else get_required_env('POSTGRES_USER'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'clothing_password') if DEBUG else get_required_env('POSTGRES_PASSWORD'),
+            'HOST': os.getenv('POSTGRES_HOST', 'localhost') if DEBUG else get_required_env('POSTGRES_HOST'),
+            'PORT': os.getenv('POSTGRES_PORT', '5432') if DEBUG else get_required_env('POSTGRES_PORT'),
         }
     }
 
@@ -130,6 +139,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -154,11 +165,13 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = get_list_env('CORS_ALLOWED_ORIGINS', ['http://localhost:3000'])
 CORS_ALLOW_ALL_ORIGINS = get_bool_env('CORS_ALLOW_ALL', False)
 CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = get_list_env('CSRF_TRUSTED_ORIGINS', [])
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = get_bool_env('SESSION_COOKIE_SECURE', False)
-CSRF_COOKIE_SECURE = get_bool_env('CSRF_COOKIE_SECURE', False)
-SECURE_SSL_REDIRECT = get_bool_env('SECURE_SSL_REDIRECT', False)
-SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '0'))
-SECURE_HSTS_INCLUDE_SUBDOMAINS = get_bool_env('SECURE_HSTS_INCLUDE_SUBDOMAINS', False)
-SECURE_HSTS_PRELOAD = get_bool_env('SECURE_HSTS_PRELOAD', False)
+USE_X_FORWARDED_HOST = get_bool_env('USE_X_FORWARDED_HOST', not DEBUG)
+SESSION_COOKIE_SECURE = get_bool_env('SESSION_COOKIE_SECURE', not DEBUG)
+CSRF_COOKIE_SECURE = get_bool_env('CSRF_COOKIE_SECURE', not DEBUG)
+SECURE_SSL_REDIRECT = get_bool_env('SECURE_SSL_REDIRECT', not DEBUG)
+SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000' if not DEBUG else '0'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = get_bool_env('SECURE_HSTS_INCLUDE_SUBDOMAINS', not DEBUG)
+SECURE_HSTS_PRELOAD = get_bool_env('SECURE_HSTS_PRELOAD', not DEBUG)
